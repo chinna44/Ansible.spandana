@@ -1,0 +1,75 @@
+Azure Application Gateway Creation
+Revision	01
+Issued	27/11/2020
+Owner	Midhun K
+
+Contents
+1	Objective	2
+2	Scope	2
+3	Prerequisites	2
+4	Definitions	2
+  5	Procedure	2-3
+ 
+1.	Objective
+The purpose of this document is to understand the azure application gateway creation.
+2.	Scope
+This applies to all DOC L2, L3 Azure Engineers
+3.	Prerequisites
+Access to azure portal, SSL certificate which requires during the application gateway creation.
+4.	Definitions
+Portal = https://portal.azure.com
+5.	Procedure
+1.	Login to azure portal.
+2.	Search and select Application gateway 
+3.	Click on Add
+4.	Select the subscription and resource group, give the application gateway name.
+Eg: agw-av-dev-01  for aviation dev.
+5.	Select the region (EastUS), Tier as Standard V2
+6.	Enable auto scaling below are the scaling units based on the environment.
+Dev  :   Minimum 1, Maximum 2
+QA   :    Minimum 1, Maximum 5
+Prod:    Minimum 1, Maximum 5
+7.	Select the availability options as availability zone and select availability zone 1 for prod and AZ 2 for non-prod
+8.	Select the virtual network and subnet.
+ 
+9.	Assign the public IP (create new if required) 
+Application gateway V2 should require both public and private ip enabled.
+ 
+10.	Add Backend Pool
+Name: EPM-FoundationServer-Pool
+Add the backend target (virtual Machine) and select the backend VMS (EPM servers)
+
+ 
+
+11.	Select configuration -> Add routing rule
+HTTP Rule
+Rule name: HTTP Rule
+Listener Name: HTTP Listener 
+Frontend IP: Private
+Protocol HTTP and port 80
+ 
+Select backend Targets
+Backend pool: Select EPM-FoundationServer-Pool
+Add HTTP setting (HTTP Setting -01)
+
+Backend Port: 19000
+Enable Cookie-Based affinity
+Select ApplicationGatewayAfinity
+Disable Connection Draining 
+Request timeout 
+	3600 for Prod
+	7200 for Non-Prod 
+ 
+
+HTTPS Rule
+Rule name: HTTPS Rule
+Listener Name: HTTPS Listener 
+Frontend IP: Private
+Protocol HTTPS and port 443
+Upload the SSL certificate (.pfx)
+Select backend Targets
+Backend pool : Select EPM-FoundationServer-Pool
+Select the existing certificate and add it.
+ 
+
+12.	Add the Tags (Mandatory)
