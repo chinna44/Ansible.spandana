@@ -1,0 +1,14 @@
+---
+##Demo Ansible Playbook to start Application Services
+- name: Running service start script
+  hosts: all
+  remote_user: zpc
+  become: yes
+  become_user: hadmin
+  vars:
+    scriptFile: /epmcfg/Infra/EpmRestarts/nohup_startAll_EPM.sh
+  tasks:
+  - name: start the app service
+    shell: "sh {{ scriptFile }} > /tmp/test.log"
+...
+

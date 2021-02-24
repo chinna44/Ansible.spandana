@@ -1,0 +1,16 @@
+
+---
+- hosts: all
+  remote_user: zpc
+  become: yes
+  tasks:        
+  - name: Checking process are running
+    shell: if ps –ef |grep hadmin|grep –v grep > /dev/null ;then echo 'process_running';else echo 'process_not_running';fi
+    register: app_process_check
+  - debug:
+      var: app_process_check
+        
+#  - name: Force kill stuck processes
+  #  shell: killall -u hadmin
+   #     when: 'process_running'
+...

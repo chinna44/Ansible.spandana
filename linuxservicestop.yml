@@ -1,0 +1,15 @@
+---
+##Demo Ansible Playbook to stop Application Services
+- name: Running service stop script
+  hosts: all
+  remote_user: zpc
+  become: yes
+  become_user: hadmin
+  vars:
+    scriptFile: /epmcfg/Infra/EpmRestarts/nohup_stopAll_EPM.sh
+  tasks:
+  - name: stop the app service
+    shell: "sh {{ scriptFile }} > /tmp/test.log"
+  - debug: 
+...
+
