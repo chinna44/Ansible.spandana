@@ -1,0 +1,20 @@
+#stop script
+
+cd /epmcfg/Infra/EpmRestarts
+if [ ! -d logs ]; then mkdir logs; fi;
+today=`date +%Y%m%d_%Hh%Mm`
+./stopAll_EPM.sh > logs/stop_${HOSTNAME}_$today.log 2>&1
+echo -e "All services are stopped"
+
+start script
+[root@zeucodvmlepm01 ~]# cat /epmcfg/Infra/EpmRestarts/nohup_startAll_EPM.sh
+#!/bin/bash
+
+cd /epmcfg/Infra/EpmRestarts
+if [ ! -d logs ]; then mkdir logs; fi;
+today=`date +%Y%m%d_%Hh%Mm`
+./startAll_EPM.sh > logs/start_${HOSTNAME}_$today.log 2>&1
+echo -e "All services are started"
+
+
+
