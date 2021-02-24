@@ -1,0 +1,62 @@
+Azure Linux Patching Procedures
+Revision	01
+Issued	27/10/2020
+Owner	Midhun K
+
+Contents
+1	Objective	2
+2	Scope	2
+3	Prerequisites	2
+4	Definitions	2
+  5	Procedure	2-3
+  6  	Troubleshooting                                                             4
+ 
+1.	Objective
+The purpose of this document is to understand the linux monthly patching to remediated the OS related vulnerabilities. 
+      2. Scope
+This applies to all DOC L2, L3 Azure Engineers
+3.	Prerequisites
+Root privilege to Linux machines
+4.	Definitions
+Portal = https://portal.azure.com
+Yum: https://man7.org/linux/man-pages/man8/yum.8@@yum.html
+
+5.	Procedure
+1.	Make sure the daily backups are completed for the vms that you are going to patch.
+Login to portal-> search for Recovery services vault-> open the vault->select backup job
+->make sure the status of the job is completed for that server.
+Else take a manual backup.
+2.	Update EPM team to stop the application services.
+3.	Once the application services are down, update the DBA to shut down the database.
+4.	Once we get a confirmation from both application and database team, login to the server and switch to root user.
+sudo su –
+5.	Stop auditd service
+Service auditd stop
+6.	Patch the vm
+yum –y update
+7.	Wait for the update to get completed and watch for any errors during the update. Incase any errors reported you need to fix that before proceeding further.
+8.	For java vulnerabilities (only for the java which is installed under /usr/java) upgrade the java to the latest version.
+Download the java from https://www.oracle.com/ and place it under /usr/java/
+ 
+1.	Update the softlinks that are present in /etc/alternatives/ and /usr/java to point to the latest java which is installed. Please refer the below screenshot for reference.
+2.	  
+3.	Once the update completes, check the available disk space and make sure you have enough free space /boot.
+4.	df –h
+5.	Reboot the vm 
+6.	reboot
+7.	While rebooting, make sure epm01 is stopped last and started first. As we have nfs share configured in this server and any issues to this server will make the shared mounts inaccessible by other servers.
+8.	Once the vm is up, update DBA to check the database services, and upon their confirmation ask the application team to bring up the application.
+ 
+6.	Troubleshooting
+9.	Login to the Azure Portal
+10.	Locate the vm.
+11.	Open Serial console
+12.	Within the console “Restart VM”
+13.	Follow the on screen directions as needed
+14.	When the GRUB Menu displays, hit “Esc” and then navigate through the menu to    locate the previous OS version
+15.	With the previous OS version highlighted, type Enter to boot into the OS
+16.	Once the previous OS is booted, login and determine the cause of the issue.  If needed stop databases and auditd, use “yum history” and “yum history undo ##” to rollback patches, then reapply and reboot
+17.	If needed, submit cases with Microsoft and/or Oracle for assistance.  Microsoft cases can be submitted via the Azure portal by clicking the question mark.  Oracle Support can be reached at https://support.oracle.com
+
+
+
