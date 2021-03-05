@@ -1,1 +1,79 @@
 
+- hosts: localhost
+  gather_facts: False
+  vars:
+     src_url: https://{{sso_id}}:{{enc_pass}}@artifactory.build.ge.com/list/SXZZG/Applications/{{app_name}}/{{app_instance}}/ws/pw_web_apache2_4
+     root_dir: /opt/software/apache
+     app_role: web
+     list_file_dir: /var/chef/cache
+     list_file_url: https://{{sso_id}}:{{enc_pass}}@artifactory.build.ge.com/list/SXZZG/Applications/{{app_name}}/{{app_instance}}/{{app_role}}/list_file.json
+     ssl_dir: /opt/software/apache/ssl
+     conf_dir: /opt/software/apache/conf
+     user: apache
+
+  pre_tasks:
+     - name: retrieve the sso id from aws secret manager
+       shell: aws secretsmanager get-secret-value --region us-east-1 --secret-id automation/ArtifactorySecrets | jq --raw-output '.SecretString' | jq -r .username
+       register: user_id
+
+     - name: retrieve the jfrog encrypted password from aws secret manager
+       shell: aws secretsmanager get-secret-value --region us-east-1 --secret-id automation/ArtifactorySecrets | jq --raw-output '.SecretString' | jq -r .password
+       register: user_pass
+
+     - name: set variable values
+       set_fact:
+         sso_id: "{{ user_id.stdout }}"
+         enc_pass: "{{ user_pass.stdout }}"        
+          
+  tasks:
+
+  - name: check list file exists or not
+    stat:
+      path: "{{ list_file_dir }}/list_file.json"
+    register: lst_file
+           
+  - name: Download list file from jfrog artifactory
+    get_url:
+        url: "{{list_file_url}}"
+        dest: "{{list_file_dir}}"
+    register: dwnld_file
+    ignore_errors: yes
+    when: not lst_file.stat.exists
+
+  - name: print error messages
+    debug:
+       msg: "list file isn't exist in jfrog artifactory"
+    when: dwnld_file.changed == false and not lst_file.stat.exists
+
+  - name: check apache directories exists or not
+    stat:
+      path: "{{ item }}"
+    register: files_to_exist
+    with_items:
+    - ["{{ root_dir }}","{{ ssl_dir }}","{{ conf_dir }}"]
+
+  - name: print message if apache conf dir not exist
+    debug: 
+      msg: "apache service not installed"
+    when: >
+      (not files_to_exist.results[0].stat.exists) or
+      (not files_to_exist.results[1].stat.exists) or
+      (not files_to_exist.results[2].stat.exists)
+  - name: download all ssl files and config files
+    shell: |
+      wget -N -r --no-parent --no-directories --reject "index.html*" {{ src_url }}/ssl/ -P {{ ssl_dir }}
+      chmod 0644 {{ ssl_dir }}/*
+      chown {{ user }}:{{ user }} {{ ssl_dir }}/*
+      wget -N -r --no-parent -nd --reject "*.csr, *.crt, httpd.conf, vhost.conf, *.key, index.html*" {{ src_url }}/ -P {{ conf_dir }}
+      chmod 755 {{ conf_dir }}/*
+      chown {{ user }}:{{ user }} {{ conf_dir }}/*
+      exit 0
+    args:
+      warn: false
+    ignore_errors: yes  
+
+  - name: restart apache service
+    service:
+      name: httpd
+      state: restarted
+    ignore_errors: yes  
