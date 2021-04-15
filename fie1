@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+#file is to run chef recipes inabsence of chef using aws ssm
 
 pwd
 ls -lart
