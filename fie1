@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#file is to run chef recipes inabsence of chef using aws ssm
+#file is to run chef recipes inabsence of chef server (chef-client existed on server)using aws ssm for a jenkins particular publish job
+
 
 pwd
 ls -lart
