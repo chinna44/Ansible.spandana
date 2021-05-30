@@ -1,0 +1,61 @@
+[root@ip-10-227-253-113 ansible]# cat push_build.yml
+-
+  hosts: localhost
+  name: "push build jenkins"
+
+  tasks:
+    -
+      name: display the appConfig
+      shell: cat /usr/local/etc/appConfig.json
+      register: result
+    -
+      name: save the json data to a variable in a fact
+      set_fact:
+        jsondata: "{{ result.stdout | from_json }}"
+    -
+      name: set array
+      set_fact:
+        json: "{{ jsondata[0] }}"
+
+    -
+      name: set app value
+      set_fact:
+        app_name: "{{ json | json_query(jmesquery) }}"
+      vars:
+        jmesquery: 'app'
+    -
+      name: get componente
+      set_fact:
+        components: "{{ json | json_query(jmesquery) }}"
+      vars:
+        jmesquery: 'components'
+
+    -
+      name: "create appConfig directory"
+      file:
+        path: /usr/local/etc
+        state: directory
+    -
+      name: "create deployment directory"
+      file:
+        path: /opt/software/deployment
+        state: directory
+    -
+      name: "create app deployment directory"
+      file:
+        path: "/opt/software/deployment/{{ app_name }}"
+        state: directory
+
+    -
+      name: "Iterate loop"
+      vars:
+        module_name: "{{ item.Module_Name }}"
+        file_name: "{{ item.File_Name }}"
+        build_source: "https://{{ artifactory_usr }}:{{ artifactory_pass }}@artifactory.build.ge.com/SXZZG/Applications/{{ app_name }}/{{ module_name }}/{{ moduel_version }}/{{ file_name }}"
+        build_dest: "/opt/software/deployment/{{ app_name }}/{{ file_name }}"
+      get_url:
+        url: "{{ build_source }}"
+        dest: "{{ build_dest }}"
+        owner: root
+        group: root
+      loop: "{{ components }}"
