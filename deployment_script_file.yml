@@ -1,0 +1,51 @@
+    
+[root@ip-10-227-253-113 ansible]# cat execute_script.yml
+---
+- hosts: localhost
+
+
+  tasks:
+    -
+      name: display the instanceConfig
+      shell: cat /usr/local/etc/instance.json
+      register: result
+    -
+      name: save the json data to a variable in a fact
+      set_fact:
+        jsondata: "{​​​​​​​{​​​​​​​ result.stdout | from_json }​​​​​​​}​​​​​​​"
+    -
+      name: get app_config_location value
+      set_fact:
+        app_config_location: "{​​​​​​​{​​​​​​​ jsondata | json_query(jmesquery) }​​​​​​​}​​​​​​​"
+      vars:
+        jmesquery: 'app_config_location'
+    -
+      name: "get app value"
+      set_fact:
+        app_name: "{​​​​​​​{​​​​​​​ app_info[0] }​​​​​​​}​​​​​​​"
+      vars:
+        app_info: "{​​​​​​​{​​​​​​​ app_config_location.split('/') }​​​​​​​}​​​​​​​"
+    -
+      debug:
+        msg: "{​​​​​​​{​​​​​​​ app_name }​​​​​​​}​​​​​​​"
+    -
+      name: "create directory"
+      file:
+        path: "/usr/local/bin"
+        state: directory
+    -
+      name: "set source and destination"
+      set_fact:
+        dest: "/usr/local/bin/{​​​​​​​{​​​​​​​ execute_script }​​​​​​​}​​​​​​​"
+        source: "https://{​​​​​​​{​​​​​​​ artifactory_usr }​​​​​​​}​​​​​​​:{​​​​​​​{​​​​​​​ artifactory_pass }​​​​​​​}​​​​​​​@artifactory.build.ge.com/SXZZG/Applications/{​​​​​​​{​​​​​​​ app_name }​​​​​​​}​​​​​​​/autodeploy/{​​​​​​​{​​​​​​​ execute_script }​​​​​​​}​​​​​​​"
+    -
+      name: "download executable file"
+      get_url:
+        url: "{​​​​​​​{​​​​​​​ source }​​​​​​​}​​​​​​​"
+        dest: "{​​​​​​​{​​​​​​​ dest }​​​​​​​}​​​​​​​"
+        owner: root
+        group: root
+    -
+      name: Run the script
+      shell: "{​​​​​​​{​​​​​​​ dest }​​​​​​​}​​​​​​​"
+# ansible-playbook test1.yml -e "execute_script=deploy-app.sh"
