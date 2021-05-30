@@ -1,0 +1,3 @@
+[root@ip-10-227-253-113 etc]# cat instance.json
+{
+ "app_config_location": "iam-toolkit/qa-iam-toolkit/app"
