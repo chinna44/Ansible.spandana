@@ -1,0 +1,67 @@
+- hosts: localhost
+  gather_facts: False
+  vars:
+     src_url: https://{​​​​​​​{​​​​​​​sso_id}​​​​​​​}​​​​​​​:{​​​​​​​{​​​​​​​enc_pass}​​​​​​​}​​​​​​​@artifactory.build.ge.com/list/SXZZG/Applications/{​​​​​​​{​​​​​​​app_name}​​​​​​​}​​​​​​​/{​​​​​​​{​​​​​​​app_instance}​​​​​​​}​​​​​​​/ws/pw_web_apache2_4
+     root_dir: /opt/software/apache
+     ssl_dir: /opt/software/apache/ssl
+     conf_dir: /opt/software/apache/conf/ct-web-services
+     user: apache
+
+
+
+  tasks:
+  - name: check apache directories exists or not
+    stat:
+      path: "{​​​​​​​{​​​​​​​ item }​​​​​​​}​​​​​​​"
+    register: files_to_exist
+    with_items:
+    - ["{​​​​​​​{​​​​​​​ root_dir }​​​​​​​}​​​​​​​","{​​​​​​​{​​​​​​​ ssl_dir }​​​​​​​}​​​​​​​","{​​​​​​​{​​​​​​​ conf_dir }​​​​​​​}​​​​​​​"]
+
+
+  - name: Creating ssl directory
+    file:
+       path: "{​​​​​​​{​​​​​​​ files_to_exist.results[1].item }​​​​​​​}​​​​​​​"
+       state: directory
+       mode: 0755
+       group: "{​​​​​​​{​​​​​​​ user }​​​​​​​}​​​​​​​"
+       owner: "{​​​​​​​{​​​​​​​ user }​​​​​​​}​​​​​​​"
+    when: files_to_exist.results[1].stat.exists == false
+
+
+  - name: Creating apache root directory
+    file:
+       path: "{​​​​​​​{​​​​​​​ files_to_exist.results[0].item }​​​​​​​}​​​​​​​"
+       state: directory
+       mode: 0755
+       group: "{​​​​​​​{​​​​​​​ user }​​​​​​​}​​​​​​​"
+       owner: "{​​​​​​​{​​​​​​​ user }​​​​​​​}​​​​​​​"
+    when: files_to_exist.results[0].stat.exists == false
+
+
+  - name: Creating apache conf directory
+    file:
+       path: "{​​​​​​​{​​​​​​​ files_to_exist.results[2].item }​​​​​​​}​​​​​​​"
+       state: directory
+       mode: 0755
+       group: "{​​​​​​​{​​​​​​​ user }​​​​​​​}​​​​​​​"
+       owner: "{​​​​​​​{​​​​​​​ user }​​​​​​​}​​​​​​​"
+    when: files_to_exist.results[2].stat.exists == false
+
+
+  - name: download all ssl files and config files
+    shell: |
+      wget -N -r --no-parent --no-directories --reject "index.html*" {​​​​​​​{​​​​​​​ src_url }​​​​​​​}​​​​​​​/ssl/ -P {​​​​​​​{​​​​​​​ ssl_dir }​​​​​​​}​​​​​​​
+      chmod 0644 {​​​​​​​{​​​​​​​ ssl_dir }​​​​​​​}​​​​​​​/*
+      chown {​​​​​​​{​​​​​​​ user }​​​​​​​}​​​​​​​:{​​​​​​​{​​​​​​​ user }​​​​​​​}​​​​​​​ {​​​​​​​{​​​​​​​ ssl_dir }​​​​​​​}​​​​​​​/*
+      wget -N -r --no-parent -nd --reject "*.csr, *.crt, httpd.conf, vhost.conf, *.key, index.html*" {​​​​​​​{​​​​​​​ src_url }​​​​​​​}​​​​​​​/ -P {​​​​​​​{​​​​​​​ conf_dir }​​​​​​​}​​​​​​​
+      chmod 755 {​​​​​​​{​​​​​​​ conf_dir }​​​​​​​}​​​​​​​/*
+      chown {​​​​​​​{​​​​​​​ user }​​​​​​​}​​​​​​​:{​​​​​​​{​​​​​​​ user }​​​​​​​}​​​​​​​ {​​​​​​​{​​​​​​​ conf_dir }​​​​​​​}​​​​​​​/*
+      exit 0
+    args:
+      warn: false
+
+
+  - name: restart apache service
+    service:
+      name: httpd
+      state: restarted
