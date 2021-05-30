@@ -1,0 +1,77 @@
+
+[root@ip-10-227-253-113 etc]# cat appConfig.json
+
+
+[
+  {​​​​​​​
+    "install": 0,
+    "reconfig": 0,
+    "restart": 0,
+    "components": [
+      {​​​​​​​
+        "Module_Name": "app",
+        "File_Name": "iamtoolkit.tgz",
+        "Build_Number": 10
+      }​​​​​​​
+    ],
+    "autoConfig": "no",
+    "autoUpdate": "no",
+    "appenv": "qa-iam-toolkit",
+    "app": "iam-toolkit",
+    "platform": "none",
+    "CronFrequency": 15,
+    "provider": "aws",
+    "autoRestart": "yes"
+  }​​​​​​​,
+  {​​​​​​​
+    "app": "sensu",
+    "subscriptions": [
+      "default"
+    ],
+    "contacts": [
+
+
+    ],
+    "appName": "iam-toolkit",
+    "appInstance": "qa-iam-toolkit"
+  }​​​​​​​,
+  {​​​​​​​
+    "app": "Splunk",
+    "appName": "iam-toolkit",
+    "appInstance": "qa-iam-toolkit",
+    "Inputs": [
+      "default_linux"
+    ]
+  }​​​​​​​,
+  {​​​​​​​
+    "app": "2fa_netgroups",
+    "groups": [
+      {​​​​​​​
+        "CA_AWSENTC_NC_PW_WEB_ADMINS": [
+          "ALL"
+        ]
+      }​​​​​​​,
+      {​​​​​​​
+        "CA_AWSENTC_NC_PW_WEB_SUPPORT": [
+          "/bin/su appadmin",
+          "/bin/su - appadmin"
+        ]
+      }​​​​​​​,
+      {​​​​​​​
+        "CA_AWSENTC_NC_PW_SA_ADMINS": [
+          "ALL"
+        ]
+      }​​​​​​​,
+      {​​​​​​​
+        "CA_AWSENTC_NC_PWR_IAM_TOOLKIT_QA": [
+          "ALL"
+        ]
+      }​​​​​​​
+    ]
+  }​​​​​​​
+]
+ 
+
+
+
+
