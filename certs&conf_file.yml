@@ -1,0 +1,203 @@
+---
+- hosts: localhost
+  vars:
+    Artifactory_user: "$artifactory_usr"
+    Artifactory_password: "$artifactory_pass"
+  tasks:
+
+    - name: display the instanceConfig
+      shell: cat /var/chef/cache/external_file/list_file.json
+      register: result
+
+    - name: display the instanceConfig
+      shell: cat /usr/local/etc/instance.json
+      register: result
+
+
+    - name: save the json data to a variable in a fact
+      set_fact:
+        jsondata: "{{ result.stdout | from_json }}"
+
+    - name: get app_config_location value
+      set_fact:
+        app_config_location: "{{ jsondata | json_query(jmesquery) }}"
+      vars:
+        jmesquery: 'app_config_location'
+
+    - name: "get appname value"
+      set_fact:
+        app_name: "{{ app_info[0] }}"
+      vars:
+        app_info: "{{ app_config_location.split('/') }}"
+
+    - name: "get appinstance value"
+      set_fact:
+        app_instance: "{{ app_info[1] }}"
+      vars:
+        app_info: "{{ app_config_location.split('/') }}"
+
+    - name: display the list_file.json
+      shell: cat /var/chef/cache/external_file/list_file.json
+      register: output
+
+    - name: save the json data to a variable in a fact
+      set_fact:
+        json_data: "{{ output.stdout | from_json }}"
+
+    - name: set array
+      set_fact:
+        json: "{{ json_data[0] }}"
+
+    - name: set app value
+      set_fact:
+        source: "{{ json | json_query(jmesquery) }}"
+      vars:
+        jmesquery: 'localpath'
+
+    - name: set array
+      set_fact:
+        json: "{{ json_data[1] }}"
+
+    - name: set app value
+      set_fact:
+        source1: "{{ json | json_query(jmesquery) }}"
+      vars:
+        jmesquery: 'localpath'
+
+    - name: set array
+      set_fact:
+        json: "{{ json_data[2] }}"
+
+    - name: set app value
+      set_fact:
+        source2: "{{ json | json_query(jmesquery) }}"
+      vars:
+        jmesquery: 'localpath'
+
+    - name: set array
+      set_fact:
+        json: "{{ json_data[3] }}"
+
+    - name: set app value
+      set_fact:
+        source3: "{{ json | json_query(jmesquery) }}"
+      vars:
+        jmesquery: 'localpath'
+
+    - name: set array
+      set_fact:
+        json: "{{ json_data[4] }}"
+
+
+    - name: set app value
+      set_fact:
+        source4: "{{ json | json_query(jmesquery) }}"
+      vars:
+        jmesquery: 'localpath'
+
+    - name: set array
+      set_fact:
+        json: "{{ json_data[5] }}"
+
+    - name: set app value
+      set_fact:
+        source5: "{{ json | json_query(jmesquery) }}"
+      vars:
+        jmesquery: 'localpath'
+
+    - name: set array
+      set_fact:
+        json: "{{ json_data[6] }}"
+
+
+    - name: set app value
+      set_fact:
+        source6: "{{ json | json_query(jmesquery) }}"
+      vars:
+        jmesquery: 'localpath'
+
+
+    - name: "get app value"
+      set_fact:
+        ssl_conf: "{{ conf_ssl[5] }}"
+      vars:
+        conf_ssl: "{{ source.split('/') }}"
+
+    - name: "get app value"
+      set_fact:
+        vhost_conf: "{{ conf_vhost[5] }}"
+      vars:
+        conf_vhost: "{{ source1.split('/') }}"
+
+
+    - name: "get app value"
+      set_fact:
+        httpd_conf: "{{ conf_httpd[5] }}"
+      vars:
+        conf_httpd: "{{ source2.split('/') }}"
+
+    - name: "get app value"
+      set_fact:
+        csr_file: "{{ cert_csr[5] }}"
+      vars:
+        cert_csr: "{{ source3.split('/') }}"
+
+    - name: "get app value"
+      set_fact:
+        key_file: "{{ cert_key[5] }}"
+      vars:
+        cert_key: "{{ source4.split('/') }}"
+
+    - name: "get app value"
+      set_fact:
+        crt_file: "{{ cert_crt[5] }}"
+      vars:
+        cert_crt: "{{ source5.split('/') }}"
+
+    - name: "get app value"
+      set_fact:
+        oidc_conf: "{{ conf_oidc[5] }}"
+      vars:
+        conf_oidc: "{{ source6.split('/') }}"
+
+    - name: config files download from artifactory
+      vars:
+        source_conf_file: "https://{{ artifactory_usr }}:{{ artifactory_pass }}@artifactory.build.ge.com/SXZZG/Applications/{{
+ app_name }}/{{ app_instance }}/ws/pw_web_apache2_4/{{ config_files }}"
+        dest_conf_file: "/opt/software/apache/conf/{{ config_files }}"
+        config_files: "{{ item }}"
+      ansible.builtin.get_url:
+        url: "{{ source_conf_file }}"
+        dest: "{{ dest_conf_file }}"
+        force: yes
+      with_items:
+        - "{{ ssl_conf }}"
+        - "{{ vhost_conf }}"
+        - "{{ httpd_conf }}"
+        - "{{ oidc_conf }}"
+      notify: restart the apache
+
+    - name: certificates download from artifactory
+      vars:
+        source_cert_file: "https://{{ artifactory_usr }}:{{ artifactory_pass }}@artifactory.build.ge.com/SXZZG/Applications/{{
+ app_name }}/{{ app_instance }}/ws/pw_web_apache2_4/ssl/{{ cert_files }}"
+        dest_cert_file: "/opt/software/apache/ssl/{{ cert_files }}"
+        cert_files: "{{ item }}"
+      ansible.builtin.get_url:
+        url: "{{ source_cert_file }}"
+        dest: "{{ dest_cert_file }}"
+        force: yes
+      with_items:
+        - "{{ csr_file }}"
+        - "{{ key_file }}"
+        - "{{ crt_file }}"
+      notify: restart the apache
+
+  handlers:
+    - name: restart the apache
+      service:
+        name: httpd
+        state: restarted
+
+[root@ip-10-227-231-208 ansible]#
+
