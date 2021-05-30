@@ -1,0 +1,80 @@
+[root@ip-10-227-231-208 external_file]# cat list_file.json
+[
+  {
+    "source_file_path": "/SXZZG/Applications/aerofleet/dev/ws/pw_web_apache2_4/ssl.conf",
+    "source_provider": "artifactory",
+    "localpath": "/opt/software/apache/conf/ssl.conf",
+    "file_owner": "webadmin",
+    "file_group": "apache",
+    "file_mode": "0640",
+    "notifies_r_type": "service",
+    "notifies_r_name": "httpd",
+    "notifies_r_action": "restart"
+  },
+  {
+    "source_file_path": "/SXZZG/Applications/aerofleet/dev/ws/pw_web_apache2_4/vhost.conf",
+    "source_provider": "artifactory",
+    "localpath": "/opt/software/apache/conf/vhost.conf",
+    "file_owner": "webadmin",
+    "file_group": "apache",
+    "file_mode": "0640",
+    "notifies_r_type": "service",
+    "notifies_r_name": "httpd",
+    "notifies_r_action": "restart"
+  },
+  {
+    "source_file_path": "/SXZZG/Applications/aerofleet/dev/ws/pw_web_apache2_4/httpd.conf",
+    "source_provider": "artifactory",
+    "localpath": "/opt/software/apache/conf/httpd.conf",
+    "file_owner": "webadmin",
+    "file_group": "apache",
+    "file_mode": "0640",
+    "notifies_r_type": "service",
+    "notifies_r_name": "httpd",
+    "notifies_r_action": "restart"
+  },
+  {
+    "source_file_path": "/SXZZG/Applications/aerofleet/dev/ws/pw_web_apache2_4/ssl/dev-aerofleet.power.ge.com.csr",
+    "source_provider": "artifactory",
+    "localpath": "/opt/software/apache/ssl/dev-aerofleet.power.ge.com.csr",
+    "file_owner": "webadmin",
+    "file_group": "apache",
+    "file_mode": "0400",
+    "notifies_r_type": "service",
+    "notifies_r_name": "httpd",
+    "notifies_r_action": "restart"
+  },
+  {
+    "source_file_path": "/SXZZG/Applications/aerofleet/dev/ws/pw_web_apache2_4/ssl/dev-aerofleet.power.ge.com.key",
+    "source_provider": "artifactory",
+    "localpath": "/opt/software/apache/ssl/dev-aerofleet.power.ge.com.key",
+    "file_owner": "webadmin",
+    "file_group": "apache",
+    "file_mode": "0400",
+    "notifies_r_type": "service",
+    "notifies_r_name": "httpd",
+    "notifies_r_action": "restart"
+  },
+  {
+    "source_file_path": "/SXZZG/Applications/aerofleet/dev/ws/pw_web_apache2_4/ssl/dev-aerofleet.power.ge.com.crt",
+    "source_provider": "artifactory",
+    "localpath": "/opt/software/apache/ssl/dev-aerofleet.power.ge.com.crt",
+    "file_owner": "webadmin",
+    "file_group": "apache",
+    "file_mode": "0400",
+    "notifies_r_type": "service",
+    "notifies_r_name": "httpd",
+    "notifies_r_action": "restart"
+  },
+  {
+    "source_file_path": "/SXZZG/Applications/aerofleet/dev/ws/pw_web_apache2_4/oidc.conf",
+    "source_provider": "artifactory",
+    "localpath": "/opt/software/apache/conf/oidc.conf",
+    "template": true,
+    "file_owner": "webadmin",
+    "file_group": "apache",
+    "file_mode": "0640",
+    "notifies_r_type": "service",
+    "notifies_r_name": "httpd",
+    "notifies_r_action": "restart"
+  }
