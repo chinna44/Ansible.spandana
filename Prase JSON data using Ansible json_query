@@ -1,0 +1,107 @@
+## Referred from : https://www.middlewareinventory.com/blog/ansible_json_query/
+
+- name: ReadJsonfile
+    hosts: localhost
+    tasks:
+      - name: Display the JSON file content
+        shell: cat config.json
+        register: result
+
+      - name: save the Json data to a Variable as a Fact
+        set_fact:
+          jsondata: "{{ result.stdout | from_json }}"
+
+      - name: setDomainName
+        set_fact:
+          domain_name: "{{ jsondata | json_query(jmesquery) }}"
+        vars:
+          jmesquery: 'domain.name'
+
+      - name: setDomainUsername
+        set_fact:
+          domain_username: "{{ jsondata | json_query(jmesquery) }}"
+        vars:
+          jmesquery: 'domain.user'
+
+      - name: setDomainPassword
+        set_fact:
+          domain_password: "{{ jsondata | json_query(jmesquery) }}"
+        vars:
+          jmesquery: 'domain.password'
+
+      - name: setadmin_Listenport
+        set_fact:
+          admin_ListenPort: "{{ jsondata | json_query(jmesquery) }}"
+        vars:
+          jmesquery: 'domain.admin.listenport'
+
+      - name: Debug the values
+        debug: msg=" Admin Listen Port => {{ admin_ListenPort }}, DomainName => {{ domain_name }}, DomainUserName => {{ domain_username }} , Domain Password => {{ domain_password }}"
+        
+=================================================================================================================================================================== 
+## file
+        
+{
+    "domain":{
+           "name": "mwidomain",
+           "prod_mode": "prod",
+           "user": "weblogic",
+           "password": "weblogic1",
+
+           "admin": {
+            "servername": "AdminServer",
+            "listenport": "8001"
+            },
+
+            "machines": [
+                {
+                    "refname": "Machine1",
+                    "name": "MWINODE01"
+                },
+                {
+                    "refname": "Machine2",
+                    "name": "MWINODE02"
+                }
+            ],
+
+            "clusters": [
+                {
+                    "refname": "Cluster1",
+                    "name": "App1Cluster",
+                    "machine": "Box1"
+                },
+                {
+                    "refname": "Cluster2",
+                    "name": "App2Cluster",
+                    "machine": "Box2"
+                }
+            ],
+            "servers": [
+                {
+                    "name": "ms1",
+                    "port": 9001,
+                    "machine": "Box1",
+                    "clusterrefname": "Cluster1"
+                },
+                {
+                    "name": "ms2",
+                    "port": 9002,
+                    "machine": "Box2",
+                    "clusterrefname": "Cluster2"
+                },
+                {
+                    "name": "ms3",
+                    "port": 9003,
+                    "machine": "Box1",
+                    "clusterrefname": "Cluster1"
+                },
+                {
+                    "name": "ms4",
+                    "port": 9004,
+                    "machine": "Box2",
+                    "clusterrefname": "Cluster2"
+                }
+            ]
+
+    }
+}
